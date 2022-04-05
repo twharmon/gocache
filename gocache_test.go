@@ -139,7 +139,7 @@ func TestConfigTTLGetExp(t *testing.T) {
 }
 
 func TestConfigTTLGetHit(t *testing.T) {
-	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Microsecond, gocache.NewTTLMode()))
+	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Second, gocache.NewTTLMode()))
 	want := 5
 	db.Set("foo", want)
 	got := db.Get("foo")
