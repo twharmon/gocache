@@ -24,7 +24,7 @@ func main() {
         WithDefaultTTL(time.Second, cocache.NewTTLMode().UpdateOnGet())
 
     // Create a cache with that config.
-	cache := gocache.New[string, int](cfg)
+    cache := gocache.New[string, int](cfg)
 
     // Set a value.
     cache.Set("foo", 3)
