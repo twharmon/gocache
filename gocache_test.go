@@ -169,3 +169,15 @@ func TestConfigMaxCapacityHit(t *testing.T) {
 		t.Fatalf("want %v; got %v", want, got)
 	}
 }
+
+func TestConfigMaxCapacityTTLMiss(t *testing.T) {
+	db := gocache.New[string, int](gocache.NewConfig().WithMaxCapacity(2))
+	want := 1
+	db.Set("foo", want)
+	db.Set("bar", 2, time.Second)
+	db.Set("baz", 3)
+	got := db.Get("foo")
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("want %v; got %v", want, got)
+	}
+}
