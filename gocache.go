@@ -7,11 +7,7 @@ import (
 
 var never = time.Now().Add(time.Hour * 24 * 365 * 100)
 
-type Key interface {
-	int | uint | int8 | uint8 | int16 | uint16 | int32 | uint32 | int64 | uint64 | string
-}
-
-type Cache[K Key, V any] struct {
+type Cache[K comparable, V any] struct {
 	store  map[K]*entry[V]
 	mu     sync.Mutex
 	config *Config
@@ -23,7 +19,7 @@ type entry[V any] struct {
 	exp bool
 }
 
-func New[K Key, V any](config ...*Config) *Cache[K, V] {
+func New[K comparable, V any](config ...*Config) *Cache[K, V] {
 	c := &Cache[K, V]{}
 	if len(config) > 0 {
 		c.config = config[0]
@@ -36,7 +32,7 @@ func New[K Key, V any](config ...*Config) *Cache[K, V] {
 }
 
 func (c *Cache[K, V]) watch() {
-	if c.config.ttlMode&ttlModeActivePruningMask == 0 {
+	if c.config.evictionPolicy&evictionPolicyActivePruningMask == 0 {
 		return
 	}
 	for {
@@ -91,8 +87,8 @@ func (c *Cache[K, V]) Set(key K, val V, ttl ...time.Duration) {
 	if len(ttl) > 0 {
 		e.ts = e.ts.Add(ttl[0])
 		e.exp = true
-	} else if c.config.ttlMode&ttlModeSetMask > 0 {
-		e.ts = e.ts.Add(c.config.defaultTTL)
+	} else if c.config.evictionPolicy&evictionPolicySetMask > 0 {
+		e.ts = e.ts.Add(c.config.defaultEvictionTtl)
 		e.exp = true
 	}
 	c.mu.Lock()
@@ -109,8 +105,8 @@ func (c *Cache[K, V]) Get(key K) V {
 		var v V
 		return v
 	}
-	if c.config.ttlMode&ttlModeGetMask > 0 {
-		e.ts = time.Now().Add(c.config.defaultTTL)
+	if c.config.evictionPolicy&evictionPolicyGetMask > 0 {
+		e.ts = time.Now().Add(c.config.defaultEvictionTtl)
 	}
 	return e.val
 }
@@ -126,8 +122,8 @@ func (c *Cache[K, V]) Has(key K) bool {
 		c.expireUnsafe()
 		return false
 	}
-	if c.config.ttlMode&ttlModeHasMask > 0 {
-		e.ts = time.Now().Add(c.config.defaultTTL)
+	if c.config.evictionPolicy&evictionPolicyHasMask > 0 {
+		e.ts = time.Now().Add(c.config.defaultEvictionTtl)
 	}
 	return true
 }
