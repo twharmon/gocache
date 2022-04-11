@@ -21,7 +21,7 @@ func main() {
     // Create a basic config.
     cfg := gocache.NewConfig().
         WithMaxCapacity(1000).
-        WithDefaultTTL(time.Second, cocache.NewTTLMode().UpdateOnGet())
+        WithDefaultEvictionPolicy(time.Second, cocache.NewEvictionPolicy().UpdateOnGet())
 
     // Create a cache with that config.
     cache := gocache.New[string, int](cfg)

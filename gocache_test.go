@@ -107,7 +107,7 @@ func TestConfigCapacityHint(t *testing.T) {
 }
 
 func TestConfigTTLHasHit(t *testing.T) {
-	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Second, gocache.NewTTLMode()))
+	db := gocache.New[string, int](gocache.NewConfig().WithDefaultEvictionPolicy(time.Second, gocache.NewEvictionPolicy()))
 	want := true
 	db.Set("foo", 5)
 	got := db.Has("foo")
@@ -117,7 +117,7 @@ func TestConfigTTLHasHit(t *testing.T) {
 }
 
 func TestConfigTTLHasExp(t *testing.T) {
-	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Nanosecond, gocache.NewTTLMode()))
+	db := gocache.New[string, int](gocache.NewConfig().WithDefaultEvictionPolicy(time.Nanosecond, gocache.NewEvictionPolicy()))
 	want := false
 	db.Set("foo", 5)
 	time.Sleep(time.Microsecond)
@@ -128,7 +128,7 @@ func TestConfigTTLHasExp(t *testing.T) {
 }
 
 func TestConfigTTLGetExp(t *testing.T) {
-	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Nanosecond, gocache.NewTTLMode()))
+	db := gocache.New[string, int](gocache.NewConfig().WithDefaultEvictionPolicy(time.Nanosecond, gocache.NewEvictionPolicy()))
 	want := 0
 	db.Set("foo", 5)
 	time.Sleep(time.Microsecond)
@@ -139,7 +139,7 @@ func TestConfigTTLGetExp(t *testing.T) {
 }
 
 func TestConfigTTLGetHit(t *testing.T) {
-	db := gocache.New[string, int](gocache.NewConfig().WithDefaultTTL(time.Second, gocache.NewTTLMode()))
+	db := gocache.New[string, int](gocache.NewConfig().WithDefaultEvictionPolicy(time.Second, gocache.NewEvictionPolicy()))
 	want := 5
 	db.Set("foo", want)
 	got := db.Get("foo")
