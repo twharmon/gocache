@@ -1,6 +1,7 @@
 package gocache_test
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"testing"
@@ -153,6 +154,46 @@ func TestConfigMaxCapacityMiss(t *testing.T) {
 	want := 0
 	db.Set("foo", 1)
 	db.Set("bar", 2)
+	got := db.Get("foo")
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("want %v; got %v", want, got)
+	}
+}
+
+func TestConfigTTLUpdateOnGet(t *testing.T) {
+	ep := gocache.NewEvictionPolicy(time.Microsecond * 100).UpdateOnGet()
+	fmt.Println(ep)
+	cfg := gocache.NewConfig().WithDefaultEvictionPolicy(ep)
+	db := gocache.New[string, int](cfg)
+	want := 5
+	db.Set("foo", want)
+	start := time.Now()
+	for {
+		db.Get("foo")
+		if time.Since(start).Microseconds() > 10 {
+			break
+		}
+	}
+	got := db.Get("foo")
+	if !reflect.DeepEqual(want, got) {
+		t.Fatalf("want %v; got %v", want, got)
+	}
+}
+
+func TestConfigTTLUpdateOnHas(t *testing.T) {
+	ep := gocache.NewEvictionPolicy(time.Microsecond * 100).UpdateOnHas()
+	fmt.Println(ep)
+	cfg := gocache.NewConfig().WithDefaultEvictionPolicy(ep)
+	db := gocache.New[string, int](cfg)
+	want := 5
+	db.Set("foo", want)
+	start := time.Now()
+	for {
+		db.Has("foo")
+		if time.Since(start).Microseconds() > 10 {
+			break
+		}
+	}
 	got := db.Get("foo")
 	if !reflect.DeepEqual(want, got) {
 		t.Fatalf("want %v; got %v", want, got)
