@@ -161,7 +161,7 @@ func TestConfigMaxCapacityMiss(t *testing.T) {
 }
 
 func TestConfigTTLUpdateOnGet(t *testing.T) {
-	ep := gocache.NewEvictionPolicy(time.Microsecond * 10).UpdateOnGet()
+	ep := gocache.NewEvictionPolicy(time.Microsecond * 100).UpdateOnGet()
 	fmt.Println(ep)
 	cfg := gocache.NewConfig().WithDefaultEvictionPolicy(ep)
 	db := gocache.New[string, int](cfg)
@@ -181,7 +181,7 @@ func TestConfigTTLUpdateOnGet(t *testing.T) {
 }
 
 func TestConfigTTLUpdateOnHas(t *testing.T) {
-	ep := gocache.NewEvictionPolicy(time.Microsecond * 10).UpdateOnHas()
+	ep := gocache.NewEvictionPolicy(time.Microsecond * 100).UpdateOnHas()
 	fmt.Println(ep)
 	cfg := gocache.NewConfig().WithDefaultEvictionPolicy(ep)
 	db := gocache.New[string, int](cfg)
