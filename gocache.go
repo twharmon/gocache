@@ -13,12 +13,6 @@ type Cache[K comparable, V any] struct {
 	config *Config
 }
 
-type entry[V any] struct {
-	val V
-	ts  time.Time
-	exp bool
-}
-
 func New[K comparable, V any](config ...*Config) *Cache[K, V] {
 	c := &Cache[K, V]{}
 	if len(config) > 0 {
@@ -45,18 +39,18 @@ func (c *Cache[K, V]) watch() {
 
 func (c *Cache[K, V]) expireUnsafe() {
 	for k, e := range c.store {
-		if isExpired(e) {
+		if e.isExpired() {
 			delete(c.store, k)
 		}
 	}
 }
 
-func (c *Cache[K, V]) expel() {
+func (c *Cache[K, V]) evict() {
 	if c.Size() < c.config.maxCapacity {
 		return
 	}
 	var someExpire bool
-	var expel K
+	var evict K
 	ts := never
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -67,23 +61,20 @@ func (c *Cache[K, V]) expel() {
 		if !someExpire && e.exp {
 			someExpire = true
 			ts = e.ts
-			expel = k
+			evict = k
 			continue
 		}
 		if e.ts.Before(ts) {
 			ts = e.ts
-			expel = k
+			evict = k
 		}
 	}
-	delete(c.store, expel)
+	delete(c.store, evict)
 }
 
 func (c *Cache[K, V]) Set(key K, val V, ttl ...time.Duration) {
-	c.expel()
-	e := entry[V]{
-		val: val,
-	}
-	e.ts = time.Now()
+	c.evict()
+	e := newEntry(val)
 	if len(ttl) > 0 {
 		e.ts = e.ts.Add(ttl[0])
 		e.exp = true
@@ -92,7 +83,7 @@ func (c *Cache[K, V]) Set(key K, val V, ttl ...time.Duration) {
 		e.exp = true
 	}
 	c.mu.Lock()
-	c.store[key] = &e
+	c.store[key] = e
 	c.mu.Unlock()
 }
 
@@ -100,7 +91,7 @@ func (c *Cache[K, V]) Get(key K) V {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	e := c.store[key]
-	if e == nil || isExpired(e) {
+	if e == nil || e.isExpired() {
 		c.expireUnsafe()
 		var v V
 		return v
@@ -118,7 +109,7 @@ func (c *Cache[K, V]) Has(key K) bool {
 	if !ok {
 		return false
 	}
-	if isExpired(e) {
+	if e.isExpired() {
 		c.expireUnsafe()
 		return false
 	}
