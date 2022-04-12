@@ -26,7 +26,7 @@ func New[K comparable, V any](config ...*Config) *Cache[K, V] {
 }
 
 func (c *Cache[K, V]) watch() {
-	if c.config.evictionPolicy&evictionPolicyActivePruningMask == 0 {
+	if c.config.evictionPolicy.flags&evictionPolicyActivePruningMask == 0 {
 		return
 	}
 	for {
@@ -78,8 +78,8 @@ func (c *Cache[K, V]) Set(key K, val V, ttl ...time.Duration) {
 	if len(ttl) > 0 {
 		e.ts = e.ts.Add(ttl[0])
 		e.exp = true
-	} else if c.config.evictionPolicy&evictionPolicySetMask > 0 {
-		e.ts = e.ts.Add(c.config.defaultEvictionTtl)
+	} else if c.config.evictionPolicy.flags&evictionPolicySetMask > 0 {
+		e.ts = e.ts.Add(c.config.evictionPolicy.ttl)
 		e.exp = true
 	}
 	c.mu.Lock()
@@ -96,8 +96,8 @@ func (c *Cache[K, V]) Get(key K) V {
 		var v V
 		return v
 	}
-	if c.config.evictionPolicy&evictionPolicyGetMask > 0 {
-		e.ts = time.Now().Add(c.config.defaultEvictionTtl)
+	if c.config.evictionPolicy.flags&evictionPolicyGetMask > 0 {
+		e.ts = time.Now().Add(c.config.evictionPolicy.ttl)
 	}
 	return e.val
 }
@@ -113,8 +113,8 @@ func (c *Cache[K, V]) Has(key K) bool {
 		c.expireUnsafe()
 		return false
 	}
-	if c.config.evictionPolicy&evictionPolicyHasMask > 0 {
-		e.ts = time.Now().Add(c.config.defaultEvictionTtl)
+	if c.config.evictionPolicy.flags&evictionPolicyHasMask > 0 {
+		e.ts = time.Now().Add(c.config.evictionPolicy.ttl)
 	}
 	return true
 }

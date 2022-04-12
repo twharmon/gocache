@@ -18,10 +18,13 @@ import (
 )
 
 func main() {
+    // Create a basic eviction policy.
+    ep := cocache.NewEvictionPolicy(time.Second).UpdateOnGet()
+
     // Create a basic config.
     cfg := gocache.NewConfig().
         WithMaxCapacity(1000).
-        WithDefaultEvictionPolicy(time.Second, cocache.NewEvictionPolicy().UpdateOnGet())
+        WithDefaultEvictionPolicy(ep)
 
     // Create a cache with that config.
     cache := gocache.New[string, int](cfg)
