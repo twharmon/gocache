@@ -15,6 +15,6 @@ func newEntry[V any](v V) *entry[V] {
 	}
 }
 
-func (e *entry[V]) isExpired() bool {
-	return e.exp && e.ts.Before(time.Now())
+func (e *entry[V]) isExpired(reference time.Time) bool {
+	return e.exp && e.ts.Before(reference)
 }
