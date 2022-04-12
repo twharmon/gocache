@@ -1,6 +1,6 @@
 # Gocache
 
-![](https://github.com/twharmon/gocache/workflows/Test/badge.svg) [![](https://goreportcard.com/badge/github.com/twharmon/gocache)](https://goreportcard.com/report/github.com/twharmon/gocache) [![codecov](https://codecov.io/gh/twharmon/gocache/branch/main/graph/badge.svg?token=K0P59TPRAL)](https://codecov.io/gh/twharmon/gocache)
+[![Go Reference](https://pkg.go.dev/badge/github.com/twharmon/gocache.svg)](https://pkg.go.dev/github.com/twharmon/gocache) ![](https://github.com/twharmon/gocache/workflows/Test/badge.svg) [![](https://goreportcard.com/badge/github.com/twharmon/gocache)](https://goreportcard.com/report/github.com/twharmon/gocache) [![codecov](https://codecov.io/gh/twharmon/gocache/branch/main/graph/badge.svg?token=K0P59TPRAL)](https://codecov.io/gh/twharmon/gocache)
 
 Thread safe, generic, in-memory cache for Golang with optional TTL settings.
 
