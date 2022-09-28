@@ -11,9 +11,9 @@ type EvictionPolicy struct {
 
 const (
 	evictionPolicySetMask           EvictionPolicyFlags = 0b00000001
-	evictionPolicyGetMask                               = 0b00000010
-	evictionPolicyHasMask                               = 0b00000100
-	evictionPolicyActivePruningMask                     = 0b10000000
+	evictionPolicyGetMask           EvictionPolicyFlags = 0b00000010
+	evictionPolicyHasMask           EvictionPolicyFlags = 0b00000100
+	evictionPolicyActivePruningMask EvictionPolicyFlags = 0b10000000
 )
 
 // NewEvictionPolicy creates a new EvictionPolicy. By default, TTL is
